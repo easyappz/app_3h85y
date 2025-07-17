@@ -1,37 +1,26 @@
 const express = require('express');
-
-/**
- * Пример создания модели в базу данных
- */
-// const mongoose = require('mongoose');
-// const db = require('/db');
-
-// const MongoTestSchema = new mongoose.Schema({
-//   value: { type: String, required: true },
-// });
-
-// const MongoModelTest = db.mongoDb.model('Test', MongoTestSchema);
-
-// const newTest = new MongoModelTest({
-//   value: 'test-value',
-// });
-
-// newTest.save();
-
 const router = express.Router();
+const authController = require('./controllers/authController');
+const userController = require('./controllers/userController');
+const postController = require('./controllers/postController');
+const messageController = require('./controllers/messageController');
+const authMiddleware = require('./middleware/authMiddleware');
 
-// GET /api/hello
-router.get('/hello', (req, res) => {
-  res.json({ message: 'Hello from API!' });
-});
+// Auth Routes
+router.post('/register', authController.register);
+router.post('/login', authController.login);
 
-// GET /api/status
-router.get('/status', (req, res) => {
-  res.json({ 
-    status: 'ok',
-    timestamp: new Date().toISOString()
-  });
-});
+// User Routes
+router.get('/users/search', authMiddleware, userController.searchUsers);
+router.get('/users/:userId', authMiddleware, userController.getUserProfile);
+
+// Post Routes
+router.post('/posts', authMiddleware, postController.createPost);
+router.get('/posts/feed', authMiddleware, postController.getFeed);
+router.post('/posts/:postId/like', authMiddleware, postController.likePost);
+
+// Message Routes
+router.post('/messages', authMiddleware, messageController.sendMessage);
+router.get('/messages/:userId', authMiddleware, messageController.getMessages);
 
 module.exports = router;
-
