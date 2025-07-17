@@ -6,6 +6,7 @@ import Messages from './pages/Messages';
 import Dialogs from './pages/Dialogs';
 import Search from './pages/Search';
 import Settings from './pages/Settings';
+import ProfileSettings from './pages/ProfileSettings';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/dialogs" element={<Dialogs />} />
         <Route path="/search" element={<Search />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/profile-settings" element={<ProfileSettings />} />
       </Route>
     </Routes>
   );
