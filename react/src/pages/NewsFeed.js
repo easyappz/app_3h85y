@@ -1,23 +1,55 @@
-import React from 'react';
-import { Box, Typography, Paper, Divider } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, CircularProgress, Typography } from '@mui/material';
+import PostList from '../components/PostList';
+import { fetchPosts } from '../services/postService';
 
-const NewsFeed = () => {
+function NewsFeed() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchPosts();
+        setPosts(data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to load posts. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    loadPosts();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <Typography variant="h6" color="error">
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ py: 2 }}>
-      <Typography variant="h5" gutterBottom>
+    <Box sx={{ padding: 2, maxWidth: '100%', margin: '0 auto' }}>
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#45668e' }}>
         News Feed
       </Typography>
-      <Divider sx={{ my: 2 }} />
-      {[1, 2, 3].map((post) => (
-        <Paper key={post} sx={{ p: 2, mb: 2, borderRadius: 1, boxShadow: 1 }}>
-          <Typography variant="h6">Post {post}</Typography>
-          <Typography variant="body1" color="text.secondary">
-            This is a placeholder for a post content in the news feed.
-          </Typography>
-        </Paper>
-      ))}
+      <PostList posts={posts} onPostUpdate={setPosts} />
     </Box>
   );
-};
+}
 
 export default NewsFeed;
