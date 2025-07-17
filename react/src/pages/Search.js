@@ -1,30 +1,69 @@
-import React from 'react';
-import { Box, Typography, Divider, TextField, Button, List, ListItem, ListItemText, Paper } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Container, Box, Typography } from '@mui/material';
+import SearchBar from '../components/SearchBar';
+import SearchResults from '../components/SearchResults';
+import { searchUsers } from '../services/api';
 
-const Search = () => {
+function Search() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      if (searchQuery.trim() === '') {
+        setResults([]);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await searchUsers(searchQuery);
+        setResults(data);
+      } catch (err) {
+        setError('Failed to load search results. Please try again.');
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, [searchQuery]);
+
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+  };
+
+  const handleProfileClick = (userId) => {
+    navigate(`/profile/${userId}`);
+  };
+
   return (
-    <Box sx={{ py: 2 }}>
-      <Typography variant="h5" gutterBottom>
-        Find Friends
-      </Typography>
-      <Divider sx={{ my: 2 }} />
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-        <TextField placeholder="Enter name..." variant="outlined" fullWidth size="small" />
-        <Button variant="contained" sx={{ backgroundColor: '#4682b4' }}>
+    <Container maxWidth="md" sx={{ mt: 3 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" gutterBottom>
           Search
-        </Button>
+        </Typography>
+        <SearchBar
+          value={searchQuery}
+          onChange={handleSearchChange}
+          placeholder="Search for people..."
+        />
       </Box>
-      <Paper sx={{ p: 2, borderRadius: 1, boxShadow: 1 }}>
-        <List>
-          {[1, 2, 3].map((user) => (
-            <ListItem key={user} divider>
-              <ListItemText primary={`User ${user}`} secondary="City, Country" />
-            </ListItem>
-          ))}
-        </List>
-      </Paper>
-    </Box>
+      <SearchResults
+        results={results}
+        loading={loading}
+        error={error}
+        onProfileClick={handleProfileClick}
+      />
+    </Container>
   );
-};
+}
 
 export default Search;
